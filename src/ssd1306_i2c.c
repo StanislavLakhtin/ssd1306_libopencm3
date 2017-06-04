@@ -28,22 +28,24 @@
 
 #include <ssd1306_i2c.h>
 
-/* LCD Memory organised in 64 horizontal pixel and up to 6 rows of byte
+/* Device memory organised in 128 horizontal pixel and up to 8 rows of byte
+ *
 	 B  B .............B  -----
 	 y  y .............y        \
 	 t  t .............t         \
 	 e  e .............e          \
-	 0  1 .............63          \
+	 0  1 .............127         \
 	                                \
-	 D0 D0.............D0            \
-	 D1 D1.............D1            / ROW 0
-	 D2 D2.............D2           /
-	 D3 D3.............D3          /
-	 D4 D4.............D4         /
+	 D0 D0.............D0  LSB       \  ROW 0  |
+	 D1 D1.............D1            /  ROW 7  V
+	 D2 D2.............D2   |       /
+	 D3 D3.............D3   |      /
+	 D4 D4.............D4   V     /
 	 D5 D5.............D5        /
-	 D6 D6.............D6       /
+	 D6 D6.............D6  MSB  /
 	 D7 D7.............D7  ----
-	*/
+
+*/
 
 void ssd1306_init(uint32_t i2c, uint8_t address, uint8_t width, uint8_t height) {
   I2C_channel = i2c;

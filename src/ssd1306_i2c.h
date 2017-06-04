@@ -40,11 +40,21 @@
 #define I2C_COMMAND 0x00
 #define I2C_DATA 0x40
 
+#define SSD1306_SET_CONTROL     0x81  // Double byte command to select 1 out of 256 contrast steps. Contrast increases as the value increases.
+#define SSD1306_RESET           0x7F
+#define SSD1306_DISPLAY_ON_RAM  0xA4  // Resume to RAM content display (RESET)
+#define SSD1306_DISPLAY_NO_RAM  0xA5  // Output ignores RAM content
+#define SSD1306_SET_NORMAL      0xA6  // Normal display (RESET)
+#define SSD1306_SET_INVERSE     0xA7  // Inverse display
+#define SSD1306_SET_DISPLAY_OFF 0xAE  // Display OFF (sleep mode)
+#define SSD1306_SET_DISPLAY_ON  0xAF  // Display ON in normal mode
 
 uint32_t I2C_channel = I2C2;
 uint8_t dev_address = I2C_ADDRESS_SA0_0;
 uint8_t dev_width = 128;
 uint8_t dev_height = 32;
+
+
 
 void ssd1306_init(uint32_t i2c, uint8_t address, uint8_t width, uint8_t height);
 
