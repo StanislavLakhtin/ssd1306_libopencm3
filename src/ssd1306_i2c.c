@@ -34,11 +34,15 @@
 #include <string.h>
 
 uint32_t I2C_OLED = I2C2;
-uint8_t OLED_ADDRESS = I2C_ADDRESS_SA0_0;
+uint8_t OLED_ADDRESS = DEFAULT_7bit_OLED_SLAVE_ADDRESS;
 uint8_t WIDTH = 128;
 uint8_t HEIGHT = 32;
 uint16_t screenBufferLength = DEFAULTBUFFERLENGH;
 MODE AddressingMode = Page;
+
+
+// just noise to check a screen
+// todo make logo or something else
 
 uint8_t screenRAM[DEFAULTBUFFERLENGH] = {
     0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x1e,0x00,0x00,0x00,0x00,0x00,0x00,0x06,0x00
@@ -216,7 +220,8 @@ void ssd1306_send_data(uint8_t spec, uint8_t data) {
 
 /**
   * According libopencm3 constants, i2c should pointed on one of the i2c interfaces such as
-  * I2C1, I2C2 etc. Interface MUST be initialized on that moment.
+  * I2C1, I2C2 etc. Interface MUST BE initialized at this moment.
+  *
   * @param i2c -- I2C1, I2C2 etc.
   * @param address -- I2C address of the device. It can be 0x3C (or 0x3D)
   * @param width -- width of the display

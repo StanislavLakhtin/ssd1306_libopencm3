@@ -38,8 +38,7 @@
 
 // address of device is // 011110+SA0+RW - 0x3C or 0x3D
 
-#define I2C_ADDRESS_SA0_0 0b0111100
-#define I2C_ADDRESS_SA0_1 0b0111101
+#define DEFAULT_7bit_OLED_SLAVE_ADDRESS 0b0111100
 #define I2C_COMMAND 0x00
 #define I2C_DATA 0x40
 

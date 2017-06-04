@@ -80,6 +80,12 @@ static void i2c_setup(void) {
   i2c_set_trise(I2C2, 0x0b);
 
   /*
+   * Enable ACK on I2C
+   */
+
+  i2c_enable_ack(I2C2);
+
+  /*
    * This is our slave address - needed only if we want to receive from
    * other masters.
    *
@@ -121,7 +127,7 @@ int main(void) {
   i2c_setup();
   board_setup();
 
-  ssd1306_init(I2C2, I2C_ADDRESS_SA0_0, 128, 32);
+  ssd1306_init(I2C2, DEFAULT_7bit_OLED_SLAVE_ADDRESS, 128, 32);
 
   while (1);
 
