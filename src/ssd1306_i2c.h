@@ -40,6 +40,7 @@
 #define I2C_COMMAND 0x00
 #define I2C_DATA 0x40
 
+// Fundamental Command Table
 #define SSD1306_SET_CONTROL     0x81  // Double byte command to select 1 out of 256 contrast steps. Contrast increases as the value increases.
 #define SSD1306_RESET           0x7F
 #define SSD1306_DISPLAY_ON_RAM  0xA4  // Resume to RAM content display (RESET)
@@ -49,13 +50,38 @@
 #define SSD1306_SET_DISPLAY_OFF 0xAE  // Display OFF (sleep mode)
 #define SSD1306_SET_DISPLAY_ON  0xAF  // Display ON in normal mode
 
+// Addressing mode
+
+
+
 uint32_t I2C_channel = I2C2;
 uint8_t dev_address = I2C_ADDRESS_SA0_0;
 uint8_t dev_width = 128;
 uint8_t dev_height = 32;
 
-
+enum SSD1306_AddressingMode {
+  Horizontal  = 0b00,
+  Vertical    = 0b01,
+  Page        = 0b10, // RESET
+  INVALID     = 0b11  // You MUST NOT USE IT
+} AddressingMode;
 
 void ssd1306_init(uint32_t i2c, uint8_t address, uint8_t width, uint8_t height);
+
+// hardware commands
+void ssd1306_setMemoryAddressingMode(enum SSD1306_AddressingMode mode);
+void ssd1306_setColumnAddressScope(uint8_t lower, uint8_t upper);
+void ssd1306_setPageAddressScope(uint8_t lower, uint8_t upper);
+void ssd1306_setPageStartAddressForPageAddressingMode(uint8_t pageNum);
+void ssd1306_setDisplayStartLine(uint8_t startLine);
+void ssd1306_setContrast(uint8_t value);
+void ssd1306_setDisplayOn(bool resume); // switch ON/OFF MCU of display
+void ssd1306_setInverse(bool inverse);
+void ssd1306_setOLEDPanelOn(bool goOn); //switch ON/OFF power switch of the OLED panel
+void ssd1306_setDisplayOffset(uint8_t verticalShift);
+void ssd1306_adjustVcomDeselectLevel();
+void ssd1306_setOscillatorFrequency(uint8_t value); // you SHOULD use default value (0x80)
+
+
 
 #endif //SSD1306_LIBRARY_SSD1306_I2C_H_H

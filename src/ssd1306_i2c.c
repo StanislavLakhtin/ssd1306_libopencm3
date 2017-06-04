@@ -47,9 +47,208 @@
 
 */
 
+/**
+  *  According Reset Circuit
+  *  When RES# input is LOW, the chip is initialized with the following status:
+  *  1. Display is OFF
+  *  2. 128 x 64 Display Mode
+  *  3. Normal segment and display data column address and row address mapping (SEG0 mapped to
+  *      address 00h and COM0 mapped to address 00h)
+  *  4. Shift register data clear in serial interface
+  *  5. Display start line is set at display RAM address 0
+  *  6. Column address counter is set at 0
+  *  7. Normal scan direction of the COM outputs
+  *  8. Contrast control register is set at 7Fh
+  *  9. Normal display mode (Equivalent to A4h command)
+  */
+
+/**
+  * According libopencm3 constants, i2c should pointed on one of the i2c interfaces such as
+  * I2C1, I2C2 etc. Interface MUST be initialized on that moment.
+  * @param i2c -- I2C1, I2C2 etc.
+  * @param address -- I2C address of the device. It can be 0x3C (or 0x3D)
+  * @param width -- width of the display
+  * @param height -- height of the display
+  */
 void ssd1306_init(uint32_t i2c, uint8_t address, uint8_t width, uint8_t height) {
   I2C_channel = i2c;
   dev_address = address;
   dev_width = width;
   dev_height = height;
+
+  //todo set Higher Column Start Address for Page Addressing Mode (10h~1Fh) according 10.1.2 [Datasheet]
+}
+
+
+/**
+  * Set Memory Addressing Mode (20h)
+  * 2 byte
+  * A[1:0] = 00b, Horizontal Addressing Mode
+  * A[1:0] = 01b, Vertical Addressing Mode
+  * A[1:0] = 10b, Page Addressing Mode (default after RESET)
+  * A[1:0] = 11b, Invalid
+  * @param mode -- select Mode
+  */
+
+void ssd1306_setMemoryAddressingMode(enum SSD1306_AddressingMode mode) {
+  i2c_send_data(I2C_channel, 0x20);
+  i2c_send_data(I2C_channel, mode);
+}
+
+/** Set Column Address [Space] (21h)
+  *
+  *  3 byte
+  *  Command specifies column start address and end address of the display data RAM. This
+  *  command also sets the column address pointer to column start address. This pointer is used to define the
+  *  current read/write column address in graphic display data RAM.
+  *
+  *  It setup column start and end address
+  *      A[6:0] : Column start address, range : 0-127d, (RESET=0d)
+  *      B[6:0]: Column end address, range : 0-127d, (RESET =127d)
+  *
+  * @param lower  -- up to 127
+  * @param higher -- up to 127
+  *
+  * Note: This command is only for horizontal or vertical addressing mode!
+  */
+
+void ssd1306_setColumnAddressScope(uint8_t lower, uint8_t upper) {
+  i2c_send_data(I2C_channel, 0x21);
+  i2c_send_data(I2C_channel, lower);
+  i2c_send_data(I2C_channel, upper);
+}
+
+/** Set Page Address (22h)
+  *
+  *  This triple byte command specifies page start address and end address of the display data RAM. This
+  *  command also sets the page address pointer to page start address. This pointer is used to define the current
+  *  read/write page address in graphic display data RAM. If vertical address increment mode is enabled by
+  *  command 20h, after finishing read/write one page data, it is incremented automatically to the next page
+  *  address. Whenever the page address pointer finishes accessing the end page address, it is reset back to start
+  *  page address.
+  *
+  *  Setup page start and end address
+  *      A[2:0] : Page start Address, range : 0-7d, (RESET = 0d)
+  *      B[2:0] : Page end Address, range : 0-7d, (RESET = 7d)
+  *
+  *  @param lower  -- from 0 up to 7
+  *  @param higher -- from 0 up to 7
+  *
+  *  Note: This command is only for horizontal or vertical addressing mode.
+  */
+
+void ssd1306_setPageAddressScope(uint8_t lower, uint8_t upper) {
+  i2c_send_data(I2C_channel, 0x22);
+  i2c_send_data(I2C_channel, lower);
+  i2c_send_data(I2C_channel, upper);
+}
+
+/** Set Page Start Address For Page Addressing Mode (0xB0-0xB7) command
+ *  According the documentation Page MUST be from 0 to 7
+ *  @param pageNum -- from 0 to 7
+ */
+void ssd1306_setPageStartAddressForPageAddressingMode(uint8_t pageNum) {
+  i2c_send_data(I2C_channel, (uint8_t) (0xb0 | (pageNum & 0b00000111)));
+}
+
+/** Set Display Start Line (40h~7Fh)
+ *  This command sets the Display Start Line register to determine starting address of display RAM, by selecting
+ *  a value from 0 to 63. With value equal to 0, RAM row 0 is mapped to COM0. With value equal to 1, RAM
+ *  row 1 is mapped to COM0 and so on.
+ *  @param startLine -- from 0 to 63
+ */
+
+void ssd1306_setDisplayStartLine(uint8_t startLine) {
+  i2c_send_data(I2C_channel, (uint8_t) (0x40 | (startLine & 0b00111111)));
+}
+
+/** Set Contrast Control for BANK0 (81h)
+ *
+ * This command sets the Contrast Setting of the display. The chip has 256 contrast steps from 00h to FFh. The
+ * segment output current increases as the contrast step value increases.
+ * @param value from 0 to 255
+ */
+void ssd1306_setContrast(uint8_t value) {
+  i2c_send_data(I2C_channel, 0x81);
+  i2c_send_data(I2C_channel, value);
+}
+
+/**
+ * Entire Display ON (A4h/A5h)
+ * A4h command enable display outputs according to the GDDRAM contents.
+ * If A5h command is issued, then by using A4h command, the display will resume to the GDDRAM contents.
+ * In other words, A4h command resumes the display from entire display “ON” stage.
+ * A5h command forces the entire display to be “ON”, regardless of the contents of the display data RAM.
+ *
+ * @param resume -- if it will be true, then DISPLAY will go ON and redraw content from RAM
+ */
+void ssd1306_setDisplayOn(bool resume) {
+  uint8_t cmd = (uint8_t) (resume ? 0xA5 : 0xA4);
+  i2c_send_data(I2C_channel, cmd);
+}
+
+/** Set Normal/Inverse Display (A6h/A7h)
+ *
+ *  This command sets the display to be either normal or inverse. In normal display a RAM data of 1 indicates an
+ *  “ON” pixel while in inverse display a RAM data of 0 indicates an “ON” pixel.
+ *  @param inverse -- if true display will be inverted
+ */
+void ssd1306_setInverse(bool inverse) {
+  uint8_t cmd = (uint8_t) (inverse ? 0xA7 : 0xA6);
+  i2c_send_data(I2C_channel, cmd);
+}
+
+/** Set Display ON/OFF (AEh/AFh)
+ *
+ * These single byte commands are used to turn the OLED panel display ON or OFF.
+ * When the display is ON, the selected circuits by Set Master Configuration command will be turned ON.
+ * When the display is OFF, those circuits will be turned OFF and the segment and common output are in V SS
+ * tate and high impedance state, respectively. These commands set the display to one of the two states:
+ *  AEh : Display OFF
+ *  AFh : Display ON
+ *
+ * @param goOn -- if true OLED will going to ON
+ *
+ * Note: There are two state in the device: NormalMode <-> SleepMode. If device is in SleepMode then the OLED panel power consumption
+ * is close to zero. Device almost completely switched off in electrically meaning (sorry for my poor English).
+ */
+void ssd1306_setOLEDPanelOn(bool goOn) {
+  uint8_t cmd = (uint8_t) (goOn ? 0xAF : 0xAE);
+  i2c_send_data(I2C_channel, cmd);
+}
+
+/** Set Display Offset (D3h)
+ * The command specifies the mapping of the display start line to one of
+ * COM0~COM63 (assuming that COM0 is the display start line then the display start line register is equal to 0).
+ * @param verticalShift -- from 0 to 63
+ */
+
+void ssd1306_setDisplayOffset(uint8_t verticalShift) {
+  i2c_send_data(I2C_channel, 0xd3);
+  i2c_send_data(I2C_channel, verticalShift);
+}
+
+/** Set VcomH Deselect Level (DBh)
+ * This is a special command to adjust of Vcom regulator output.
+ */
+void ssd1306_adjustVcomDeselectLevel() {
+  i2c_send_data(I2C_channel, 0xdb);
+}
+
+/** Set Display Clock Divide Ratio/ Oscillator Frequency (D5h)
+ *  This command consists of two functions:
+ *  1. Display Clock Divide Ratio (D)(A[3:0])
+ *      Set the divide ratio to generate DCLK (Display Clock) from CLK. The divide ratio is from 1 to 16,
+ *      with reset value = 1. Please refer to section 8.3 (datasheet ssd1306) for the details relationship of DCLK and CLK.
+ *  2. Oscillator Frequency (A[7:4])
+ *      Program the oscillator frequency Fosc that is the source of CLK if CLS pin is pulled high. The 4-bit
+ *      value results in 16 different frequency settings available as shown below. The default setting is 0b1000
+ *
+ * WARNING: you should NOT call this function with another parameters if you don't know why you do it
+ *
+ * @param value -- default value is 0x80
+ */
+void ssd1306_setOscillatorFrequency(uint8_t value) {
+  i2c_send_data(I2C_channel, 0xd5);
+  i2c_send_data(I2C_channel, value);
 }
