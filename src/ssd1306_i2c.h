@@ -26,48 +26,26 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <libopencm3/stm32/rcc.h>
-#include <libopencm3/cm3/nvic.h>
-#include <libopencm3/stm32/exti.h>
-#include <libopencm3/stm32/f1/gpio.h>
+#ifndef SSD1306_LIBRARY_SSD1306_I2C_H_H
+#define SSD1306_LIBRARY_SSD1306_I2C_H_H
 
-void clock_setup(void) {
-  rcc_clock_setup_in_hse_12mhz_out_72mhz();
+#include <libopencm3/stm32/i2c.h>
 
-  /* Enable GPIOA, GPIOB, GPIOC clock. */
-  rcc_periph_clock_enable(RCC_GPIOA);
-  rcc_periph_clock_enable(RCC_GPIOB);
-  rcc_periph_clock_enable(RCC_GPIOC);
+#define swap(a, b) { uint8_t t = a; a = b; b = t; }
 
-  /* Enable clocks for GPIO port A (for GPIO_USART2_TX) and USART2. */
-  rcc_periph_clock_enable(RCC_AFIO);
-  rcc_periph_clock_enable(RCC_USART2);
+// address is // 011110+SA0+RW - 0x3C or 0x3D
 
-  /* Enable SPI1 Periph and gpio clocks */
-  rcc_periph_clock_enable(RCC_I2C2);
+#define I2C_ADDRESS_SA0_0 0b0111100
+#define I2C_ADDRESS_SA0_1 0b0111101
+#define I2C_COMMAND 0x00
+#define I2C_DATA 0x40
 
-  /* Enable DMA1 clock */
-  rcc_periph_clock_enable(RCC_DMA1);
-}
 
-void board_setup(void) {
+uint32_t I2C_channel = I2C2;
+uint8_t dev_address = I2C_ADDRESS_SA0_0;
+uint8_t dev_width = 128;
+uint8_t dev_height = 32;
 
-}
+void ssd1306_init(uint32_t i2c, uint8_t address, uint8_t width, uint8_t height);
 
-int main(void) {
-  /**
-   * Brief delay to give the debugger a chance to stop the core before we
-   * muck around with the chip's configuration.
-   */
-  for (uint32_t loop = 0; loop < 1000000; ++loop) {
-    __asm__("nop");
-  }
-
-  clock_setup();
-  board_setup();
-
-  while (1);
-
-  /* We will never get here */
-  return 0;
-}
+#endif //SSD1306_LIBRARY_SSD1306_I2C_H_H

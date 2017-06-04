@@ -26,48 +26,28 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <libopencm3/stm32/rcc.h>
-#include <libopencm3/cm3/nvic.h>
-#include <libopencm3/stm32/exti.h>
-#include <libopencm3/stm32/f1/gpio.h>
+#include <ssd1306_i2c.h>
 
-void clock_setup(void) {
-  rcc_clock_setup_in_hse_12mhz_out_72mhz();
+/* LCD Memory organised in 64 horizontal pixel and up to 6 rows of byte
+	 B  B .............B  -----
+	 y  y .............y        \
+	 t  t .............t         \
+	 e  e .............e          \
+	 0  1 .............63          \
+	                                \
+	 D0 D0.............D0            \
+	 D1 D1.............D1            / ROW 0
+	 D2 D2.............D2           /
+	 D3 D3.............D3          /
+	 D4 D4.............D4         /
+	 D5 D5.............D5        /
+	 D6 D6.............D6       /
+	 D7 D7.............D7  ----
+	*/
 
-  /* Enable GPIOA, GPIOB, GPIOC clock. */
-  rcc_periph_clock_enable(RCC_GPIOA);
-  rcc_periph_clock_enable(RCC_GPIOB);
-  rcc_periph_clock_enable(RCC_GPIOC);
-
-  /* Enable clocks for GPIO port A (for GPIO_USART2_TX) and USART2. */
-  rcc_periph_clock_enable(RCC_AFIO);
-  rcc_periph_clock_enable(RCC_USART2);
-
-  /* Enable SPI1 Periph and gpio clocks */
-  rcc_periph_clock_enable(RCC_I2C2);
-
-  /* Enable DMA1 clock */
-  rcc_periph_clock_enable(RCC_DMA1);
-}
-
-void board_setup(void) {
-
-}
-
-int main(void) {
-  /**
-   * Brief delay to give the debugger a chance to stop the core before we
-   * muck around with the chip's configuration.
-   */
-  for (uint32_t loop = 0; loop < 1000000; ++loop) {
-    __asm__("nop");
-  }
-
-  clock_setup();
-  board_setup();
-
-  while (1);
-
-  /* We will never get here */
-  return 0;
+void ssd1306_init(uint32_t i2c, uint8_t address, uint8_t width, uint8_t height) {
+  I2C_channel = i2c;
+  dev_address = address;
+  dev_width = width;
+  dev_height = height;
 }

@@ -16,6 +16,7 @@ set(LIBOPENCM3_ROOT ${CMAKE_SOURCE_DIR}/lib/libopencm3)
 
 include_directories(
         ${LIBOPENCM3_ROOT}/include
+        ${CMAKE_SOURCE_DIR}/src
 )
 
 link_directories(
@@ -27,7 +28,7 @@ set(NEWLIB_SPEC "--specs=nano.specs")
 
 set(STM32F1_ISSUE_602117 "-mfix-cortex-m3-ldrd")
 set(CMAKE_ASM_FLAGS "-D__ASSEMBLY__ -D__NEWLIB__ -mcpu=cortex-m3 -mthumb ${STM32F1_ISSUE_602117}")
-set(STM32F1_FLAGS "-mcpu=cortex-m3 -mthumb -msoft-float ${STM32F1_ISSUE_602117}")
+set(STM32F1_FLAGS "-mcpu=cortex-m3 -mthumb -msoft-float ${STM32F1_ISSUE_602117} -std=c11")
 set(CMAKE_C_FLAGS " \
     ${NEWLIB_SPEC} \
     -Os -g -Wall -Werror -Wredundant-decls -Wstrict-prototypes \
