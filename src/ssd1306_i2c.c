@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2017, Stanislav Lakhtin. All rights reserved.
+ * Copyright (c) 2017, Stanislav Lakhtin.
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -27,6 +28,7 @@
  */
 
 #include <ssd1306_i2c.h>
+#include <string.h>
 
 /* Device memory organised in 128 horizontal pixel and up to 8 rows of byte
  *
@@ -75,7 +77,7 @@ void ssd1306_init(uint32_t i2c, uint8_t address, uint8_t width, uint8_t height) 
   dev_address = address;
   dev_width = width;
   dev_height = height;
-
+  dataLength = (uint16_t) (dev_height / 8 * dev_width);
   //todo set Higher Column Start Address for Page Addressing Mode (10h~1Fh) according 10.1.2 [Datasheet]
 }
 
@@ -90,7 +92,7 @@ void ssd1306_init(uint32_t i2c, uint8_t address, uint8_t width, uint8_t height) 
   * @param mode -- select Mode
   */
 
-void ssd1306_setMemoryAddressingMode(enum SSD1306_AddressingMode mode) {
+void ssd1306_setMemoryAddressingMode(MODE mode) {
   i2c_send_data(I2C_channel, 0x20);
   i2c_send_data(I2C_channel, mode);
 }
@@ -251,4 +253,104 @@ void ssd1306_adjustVcomDeselectLevel() {
 void ssd1306_setOscillatorFrequency(uint8_t value) {
   i2c_send_data(I2C_channel, 0xd5);
   i2c_send_data(I2C_channel, value);
+}
+
+/**
+ * Set the page start address of the target display location by command B0h to B7h
+ * @param page -- from 0 to 7
+ *
+ * NOTE: It command is fit ONLY for Page mode
+ */
+void ssd1306_setPage(uint8_t page) {
+  i2c_send_data(I2C_channel, (uint8_t) (0xb0 | (0b00000111 & page)));
+}
+
+/**
+ * Set the lower and the upper column.
+ * See note from datasheet:
+ *
+ * In page addressing mode, after the display RAM is read/written, the column address pointer is increased
+ * automatically by 1. If the column address pointer reaches column end address, the column address pointer is
+ * reset to column start address and page address pointer is not changed. Users have to set the new page and
+ * column addresses in order to access the next page RAM content.
+ *
+ * In normal display data RAM read or write and page addressing mode, the following steps are required to
+ * define the starting RAM access pointer location:
+ *  • Set the page start address of the target display location by command B0h to B7h.
+ *  • Set the lower start column address of pointer by command 00h~0Fh.
+ *  • Set the upper start column address of pointer by command 10h~1Fh.
+ * For example, if the page address is set to B2h, lower column address is 03h and upper column address is 10h,
+ * then that means the starting column is SEG3 of PAGE2.
+ *
+ * According that we should send first lower value. Next we send upper value.
+ *
+ * @param column -- from 0 to 127
+ *
+ * NOTE: It command is fit ONLY for Page mode
+ */
+void ssd1306_setColumn(uint8_t column) {
+  uint8_t cmd = (uint8_t) (0x0f & column);
+  i2c_send_data(I2C_channel, cmd);
+  cmd = (uint8_t) (0x10 | (column >> 4));
+  i2c_send_data(I2C_channel, cmd);
+}
+// -------------------- Graphics methods ---------------------------
+
+/**
+ *
+ * @param screenRAMClear -- clear or not MCU screenRAM. If not MCU will store buffer and can repaint it.
+ */
+
+void ssd1306_clear(bool screenRAMClear) {
+  ssd1306_setMemoryAddressingMode(Horizontal);
+  for (uint16_t i=0; i < dataLength; i++) {
+    i2c_send_data(I2C_channel, 0x00);
+  }
+  if (screenRAMClear) {
+    memset(screenRAM, 0x00, dataLength); //TODO check if memset is safe
+  }
+}
+
+/**
+ * Send (and display if OLED is ON) RAM buffer to device
+ */
+void ssd1306_displayRAM(void) {
+  ssd1306_setMemoryAddressingMode(Horizontal);
+  for (uint16_t i=0; i < dataLength; i++) {
+    i2c_send_data(I2C_channel, screenRAM[i]); //todo make it with DMA later
+  }
+}
+
+/**
+ *
+ * @param x -- from 0 to dev_width
+ * @param y -- from y to dev_height
+ * @param c -- white or black
+ * @param instantDraw -- if used no RAM data changed, but pixel send direct to device
+ * @param op -- and or xor (beware that operation will be with RAM stored)
+ */
+void ssd1306_drawPixel(uint8_t x, uint8_t y, Color c, bool instantDraw, BOOL_OPER op) {
+  if ( x > dev_width || y > dev_height )
+    return;
+
+  uint16_t offset = (uint16_t) (x + (y / 8) * dev_width);
+  //draw into memory
+  switch (op) {
+    case or:
+      screenRAM[offset] |= _bit(y%8);
+      break;
+    case and:
+      screenRAM[offset] &= (c == black)? _bit(y%8) : _inverse(y%8);
+      break;
+    case xor:
+      screenRAM[offset] ^= (c == black)? _bit(y%8) : _inverse(y%8);
+      break;
+  }
+
+  if (!instantDraw) {
+    ssd1306_setPageStartAddressForPageAddressingMode(Page);
+    ssd1306_setPage(y/8);
+    ssd1306_setColumn(x);
+    i2c_send_data(I2C_channel, screenRAM[offset]);
+  }
 }
