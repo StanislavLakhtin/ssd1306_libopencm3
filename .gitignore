@@ -1,0 +1,13 @@
+.idea
+*.elf
+*.bin
+*.hex
+*.map
+*.map
+.gdb_history
+.DS_Store
+/libopencm3
+cmake-build-debug/
+build/
+tools/Pentacom2Header/out
+cmake-build-*
