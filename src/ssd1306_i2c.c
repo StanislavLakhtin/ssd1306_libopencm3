@@ -173,8 +173,8 @@ uint8_t screenRAM[DEFAULTBUFFERLENGH] = {
  *          b. The D/C# bit determines the next data byte is acted as a command or a data. If the D/C# bit is
  *             set to logic “0”, it defines the following data byte as a command. If the D/C# bit is set to
  *             logic “1”, it defines the following data byte as a data which will be stored at the GDDRAM.
- *      The GDDRAM column address pointer will be increased by one automatically after each
- *      data write.
+ *              The GDDRAM column address pointer will be increased by one automatically after each
+ *              data write.
  * 6. Acknowledge bit will be generated after receiving each control byte or data byte.
  * 7. The write mode will be finished when a stop condition is applied. The stop condition is also defined
  *      in Figure 8-8. The stop condition is established by pulling the “SDA in” from LOW to HIGH while
@@ -183,6 +183,9 @@ uint8_t screenRAM[DEFAULTBUFFERLENGH] = {
  *      @param spec -- should be DATAONLY or COMMAND
  *
  *      Note: if you choose DATAONLY then a few bytes CAN follow that
+ *      Note(2): In fact it doesn't really matter what that datasheet has got written in. Every command can be sended
+ *      only one way: with set address and begin i2c transmission for EVERY single byte. It means that if you have
+ *      3 byte command you MUST send each of them separatelly byte per byte in start->address->cmd-zero->byte->ack sequences.
  */
 
 uint32_t reg32 __attribute__((unused));
@@ -207,10 +210,10 @@ void ssd1306_send(uint8_t spec) {
 }
 
 void ssd1306_send_data(uint8_t spec, uint8_t data) {
-  i2c_send_data(I2C_OLED, spec);
-  while (_IF_TxE(I2C_OLED));
-  i2c_send_data(I2C_OLED, data);
-  while (_IF_TxE(I2C_OLED));
+  ssd1306_start();
+  ssd1306_send(spec);
+  ssd1306_send(data);
+  ssd1306_stop();
 }
 
 /**
@@ -245,11 +248,13 @@ void ssd1306_init(uint32_t i2c, uint8_t address, uint8_t width, uint8_t height) 
   screenBufferLength = (uint16_t) (HEIGHT / 8 * WIDTH);
 
   // now we can and should send a lot commands
-  ssd1306_switchOLEDOn(false, false); // 0xae
+  ssd1306_switchOLEDOn(false, true); // 0xae
   ssd1306_setOscillatorFrequency(0x80);  // D5h 0x80
+  ssd1306_setMultiplexRatio(HEIGHT-1);
   ssd1306_setInverse(false); // normal display
   ssd1306_setContrast(0x8F);
   ssd1306_setPrecharge(0xf1);
+  ssd1306_setCOMPinsHardwareConfiguration(0x02);
   ssd1306_adjustVcomDeselectLevel();
   ssd1306_setDisplayOn(true);
   ssd1306_switchOLEDOn(true, true);
@@ -269,10 +274,8 @@ void ssd1306_init(uint32_t i2c, uint8_t address, uint8_t width, uint8_t height) 
 
 void ssd1306_setMemoryAddressingMode(MODE mode) {
   // send initial command to the device
-  ssd1306_start();
   ssd1306_send_data(COMMAND, 0x20);
-  ssd1306_send_data(COMMAND, mode);
-  ssd1306_stop();
+  ssd1306_send_data(COMMAND, 0b00000011 & mode);
 }
 
 /** Set Column Address [Space] (21h)
@@ -293,11 +296,9 @@ void ssd1306_setMemoryAddressingMode(MODE mode) {
   */
 
 void ssd1306_setColumnAddressScope(uint8_t lower, uint8_t upper) {
-  ssd1306_start();
   ssd1306_send_data(COMMAND, 0x21);
   ssd1306_send_data(COMMAND, lower);
   ssd1306_send_data(COMMAND, upper);
-  ssd1306_stop();
 }
 
 /** Set Page Address (22h)
@@ -320,11 +321,9 @@ void ssd1306_setColumnAddressScope(uint8_t lower, uint8_t upper) {
   */
 
 void ssd1306_setPageAddressScope(uint8_t lower, uint8_t upper) {
-  ssd1306_start();
   ssd1306_send_data(COMMAND, 0x22);
   ssd1306_send_data(COMMAND, lower);
   ssd1306_send_data(COMMAND, upper);
-  ssd1306_stop();
 }
 
 /** Set Page Start Address For Page Addressing Mode (0xB0-0xB7) command
@@ -332,9 +331,7 @@ void ssd1306_setPageAddressScope(uint8_t lower, uint8_t upper) {
  *  @param pageNum -- from 0 to 7
  */
 void ssd1306_setPageStartAddressForPageAddressingMode(uint8_t pageNum) {
-  ssd1306_start();
   ssd1306_send_data(COMMAND, (uint8_t) (0xb0 | (pageNum & 0b00000111)));
-  ssd1306_stop();
 }
 
 /** Set Display Start Line (40h~7Fh)
@@ -345,9 +342,7 @@ void ssd1306_setPageStartAddressForPageAddressingMode(uint8_t pageNum) {
  */
 
 void ssd1306_setDisplayStartLine(uint8_t startLine) {
-  ssd1306_start();
   ssd1306_send_data(COMMAND, (uint8_t) (0x40 | (startLine & 0b00111111)));
-  ssd1306_stop();
 }
 
 /** Set Contrast Control for BANK0 (81h)
@@ -357,10 +352,8 @@ void ssd1306_setDisplayStartLine(uint8_t startLine) {
  * @param value from 0 to 255
  */
 void ssd1306_setContrast(uint8_t value) {
-  ssd1306_start();
   ssd1306_send_data(COMMAND, 0x81);
   ssd1306_send_data(COMMAND, value);
-  ssd1306_stop();
 }
 
 /** Set Pre-charge Period (D9h)
@@ -373,10 +366,8 @@ void ssd1306_setContrast(uint8_t value) {
  */
 
 void ssd1306_setPrecharge(uint8_t value) {
-  ssd1306_start();
   ssd1306_send_data(COMMAND, 0xd9);
   ssd1306_send_data(COMMAND, value);
-  ssd1306_stop();
 }
 
 /**
@@ -389,10 +380,8 @@ void ssd1306_setPrecharge(uint8_t value) {
  * @param resume -- if it will be true, then DISPLAY will go ON and redraw content from RAM
  */
 void ssd1306_setDisplayOn(bool resume) {
-  ssd1306_start();
-  uint8_t cmd = (uint8_t) (resume ? 0xA5 : 0xA4);
+  uint8_t cmd = (uint8_t) (resume ? 0xA4 : 0xA5);
   ssd1306_send_data(COMMAND, cmd);
-  ssd1306_stop();
 }
 
 /** Set Normal/Inverse Display (A6h/A7h)
@@ -402,10 +391,8 @@ void ssd1306_setDisplayOn(bool resume) {
  *  @param inverse -- if true display will be inverted
  */
 void ssd1306_setInverse(bool inverse) {
-  ssd1306_start();
   uint8_t cmd = (uint8_t) (inverse ? 0xA7 : 0xA6);
   ssd1306_send_data(COMMAND, cmd);
-  ssd1306_stop();
 }
 
 /** Set Display ON/OFF (AEh/AFh)
@@ -431,17 +418,15 @@ void ssd1306_setInverse(bool inverse) {
  * is close to zero.
  */
 void ssd1306_switchOLEDOn(bool goOn, bool enableChargePump) {
-  ssd1306_start();
   if (goOn) {
     ssd1306_send_data(COMMAND, 0x8d);
     if (enableChargePump)
-      ssd1306_send_data(COMMAND, 0x10);
-    else
       ssd1306_send_data(COMMAND, 0x14);
+    else
+      ssd1306_send_data(COMMAND, 0x10);
     ssd1306_send_data(COMMAND, 0xAF);
   } else
     ssd1306_send_data(COMMAND, 0xAE);
-  ssd1306_stop();
 }
 
 /** Set Display Offset (D3h)
@@ -451,19 +436,16 @@ void ssd1306_switchOLEDOn(bool goOn, bool enableChargePump) {
  */
 
 void ssd1306_setDisplayOffset(uint8_t verticalShift) {
-  ssd1306_start();
   ssd1306_send_data(COMMAND, 0xd3);
   ssd1306_send_data(COMMAND, verticalShift);
-  ssd1306_stop();
 }
 
 /** Set VcomH Deselect Level (DBh)
  * This is a special command to adjust of Vcom regulator output.
  */
 void ssd1306_adjustVcomDeselectLevel(void) {
-  ssd1306_start();
   ssd1306_send_data(COMMAND, 0xdb);
-  ssd1306_stop();
+  ssd1306_send_data(COMMAND, 0x20);
 }
 
 /** Set Display Clock Divide Ratio/ Oscillator Frequency (D5h)
@@ -480,10 +462,18 @@ void ssd1306_adjustVcomDeselectLevel(void) {
  * @param value -- default value is 0x80
  */
 void ssd1306_setOscillatorFrequency(uint8_t value) {
-  ssd1306_start();
   ssd1306_send_data(COMMAND, 0xd5);
   ssd1306_send_data(COMMAND, value);
-  ssd1306_stop();
+}
+
+void ssd1306_setMultiplexRatio(uint8_t ratio) {
+  ssd1306_send_data(COMMAND, 0xa8);
+  ssd1306_send_data(COMMAND, ratio);
+}
+
+void ssd1306_setCOMPinsHardwareConfiguration(uint8_t val){
+  ssd1306_send_data(COMMAND, 0xda);
+  ssd1306_send_data(COMMAND, 0b00110010 & val);
 }
 
 /**
@@ -493,9 +483,7 @@ void ssd1306_setOscillatorFrequency(uint8_t value) {
  * NOTE: It command is fit ONLY for Page mode
  */
 void ssd1306_setPage(uint8_t page) {
-  ssd1306_start();
   ssd1306_send_data(COMMAND, (uint8_t) (0xb0 | (0b00000111 & page)));
-  ssd1306_stop();
 }
 
 /**
@@ -522,12 +510,10 @@ void ssd1306_setPage(uint8_t page) {
  * NOTE: It command is fit ONLY for Page mode
  */
 void ssd1306_setColumn(uint8_t column) {
-  ssd1306_start();
   uint8_t cmd = (uint8_t) (0x0f & column);
   ssd1306_send_data(COMMAND, cmd);
   cmd = (uint8_t) (0x10 | (column >> 4));
   ssd1306_send_data(COMMAND, cmd);
-  ssd1306_stop();
 }
 // -------------------- Graphics methods ---------------------------
 
@@ -537,7 +523,6 @@ void ssd1306_setColumn(uint8_t column) {
  */
 
 void ssd1306_clear(bool screenRAMClear) {
-  ssd1306_start();
   ssd1306_setMemoryAddressingMode(Horizontal);
   ssd1306_send(DATAONLY);
   for (uint16_t i=0; i < screenBufferLength; i++) {
@@ -547,15 +532,14 @@ void ssd1306_clear(bool screenRAMClear) {
   if (screenRAMClear) {
     memset(screenRAM, 0x00, screenBufferLength); //TODO check if "memset" is safe in our env
   }
-  ssd1306_stop();
 }
 
 /**
  * Send (and display if OLED is ON) RAM buffer to device
  */
 void ssd1306_refresh(void) {
-  ssd1306_start();
   ssd1306_setMemoryAddressingMode(Horizontal);
+  ssd1306_start();
   ssd1306_send(DATAONLY);
   for (uint16_t i=0; i < screenBufferLength; i++) {
     i2c_send_data(I2C_OLED, screenRAM[i]); //todo make it with DMA later

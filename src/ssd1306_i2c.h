@@ -86,8 +86,8 @@ void ssd1306_init(uint32_t i2c, uint8_t address, uint8_t width, uint8_t height);
 
 // tools
 
-#define DATAONLY (uint8_t)0b00000000
-#define COMMAND  (uint8_t)0b11000000
+#define DATAONLY (uint8_t)0b01000000
+#define COMMAND  (uint8_t)0b00000000
 
 void ssd1306_send(uint8_t spec);
 void ssd1306_send_data(uint8_t spec, uint8_t data);
@@ -106,6 +106,8 @@ void ssd1306_switchOLEDOn(bool goOn, bool enableChargePump); //switch ON/OFF pow
 void ssd1306_setDisplayOffset(uint8_t verticalShift);
 void ssd1306_adjustVcomDeselectLevel(void);
 void ssd1306_setOscillatorFrequency(uint8_t value); // you SHOULD use default value (0x80)
+void ssd1306_setMultiplexRatio(uint8_t ratio);
+void ssd1306_setCOMPinsHardwareConfiguration(uint8_t);
 void ssd1306_setPage(uint8_t);
 void ssd1306_setColumn(uint8_t);
 

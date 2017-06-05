@@ -129,7 +129,14 @@ int main(void) {
 
   ssd1306_init(I2C2, DEFAULT_7bit_OLED_SLAVE_ADDRESS, 128, 32);
 
-  while (1);
+  uint8_t val = 0;
+  while (1) {
+    for (int i=0;i<screenBufferLength; i++){
+      screenRAM[i] = val;
+      val++;
+    }
+    ssd1306_refresh();
+  }
 
   /* We will never get here */
   return 0;
