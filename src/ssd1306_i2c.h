@@ -52,10 +52,10 @@
 #define SSD1306_SET_DISPLAY_OFF 0xAE  // Display OFF (sleep mode)
 #define SSD1306_SET_DISPLAY_ON  0xAF  // Display ON in normal mode
 
-#define _IFSTART(i2c) ((I2C_SR1(i2c) & I2C_SR1_SB) == 0)
-#define _IFSTOP(i2c) ((I2C_SR1(i2c) & I2C_SR1_BTF) == 0)
-#define _IFADDRESS(i2c) ((I2C_SR1(i2c) & I2C_SR1_ADDR) == 0)
-#define _IFTRANSMIT(i2c) (I2C_SR1(i2c) & I2C_SR1_TxE) == 0
+#define _IF_SB(i2c) ((I2C_SR1(i2c) & I2C_SR1_SB) == 0)
+#define _IF_BTF(i2c) ((I2C_SR1(i2c) & I2C_SR1_BTF) == 0)
+#define _IF_ADDR(i2c) ((I2C_SR1(i2c) & I2C_SR1_ADDR) == 0)
+#define _IF_TxE(i2c) (I2C_SR1(i2c) & I2C_SR1_TxE) == 0
 
 // Addressing mode
 
