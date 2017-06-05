@@ -32,9 +32,9 @@
 #include <libopencm3/stm32/i2c.h>
 
 #define _swap(a, b) { uint8_t t = a; a = b; b = t; }
-#define _bit(bitNum) (1 << (bitNum))
-#define _inverse(bitNum) (0xff & (0<<bitNum))
-
+#define _bitSet(x) (1 << (x))
+#define _bitClear(x) (~(1 << x))
+#define _bitCheck(number, x) (number >> x) & 1
 
 // address of device is // 011110+SA0+RW - 0x3C or 0x3D
 
@@ -51,6 +51,11 @@
 #define SSD1306_SET_INVERSE     0xA7  // Inverse display
 #define SSD1306_SET_DISPLAY_OFF 0xAE  // Display OFF (sleep mode)
 #define SSD1306_SET_DISPLAY_ON  0xAF  // Display ON in normal mode
+
+#define _IFSTART(i2c) ((I2C_SR1(i2c) & I2C_SR1_SB) == 0)
+#define _IFSTOP(i2c) ((I2C_SR1(i2c) & I2C_SR1_BTF) == 0)
+#define _IFADDRESS(i2c) ((I2C_SR1(i2c) & I2C_SR1_ADDR) == 0)
+#define _IFTRANSMIT(i2c) (I2C_SR1(i2c) & I2C_SR1_TxE) == 0
 
 // Addressing mode
 
@@ -74,7 +79,6 @@ typedef enum SSD1306_AddressingMode {
 extern MODE AddressingMode;
 
 typedef enum SSD1306_COLOR { white = 0, black = 1} Color;
-typedef enum SSD1306_BOOLOP { or, and, xor } BOOL_OPER;
 
 extern uint8_t screenRAM[];
 
@@ -108,7 +112,7 @@ void ssd1306_setColumn(uint8_t);
 // paint commands
 void ssd1306_clear(bool screenRAMClear);
 void ssd1306_refresh(void);
-void ssd1306_drawPixel(uint8_t x, uint8_t y, Color c, bool directNoRAM, BOOL_OPER op);
+void ssd1306_drawPixel(uint8_t x, uint8_t y, Color c, bool directNoRAM);
 
 
 

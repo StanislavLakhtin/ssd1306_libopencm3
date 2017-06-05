@@ -140,7 +140,7 @@ uint8_t screenRAM[DEFAULTBUFFERLENGH] = {
 /** I2C bus write data
  *
  * According to datasheet (8.1.5.1) the I2C-bus interface gives access to write data and command into the device. Please refer to Figure for
- * the write mode of I 2 C-bus in chronological order.
+ * the write mode of I2C-bus in chronological order.
  *
  * S
  * [011110(SA)(r/w)] ack
@@ -185,22 +185,29 @@ uint8_t screenRAM[DEFAULTBUFFERLENGH] = {
  *      Note: if you choose DATAONLY then a few bytes CAN follow that
  */
 
+
 void ssd1306_start(void) {
   i2c_send_start(I2C_OLED);
+  while (_IFSTART(I2C_OLED));
   i2c_send_7bit_address(I2C_OLED, OLED_ADDRESS, I2C_WRITE);
+  while (_IFADDRESS(I2C_OLED));
 }
 
 void ssd1306_stop(void) {
   i2c_send_stop(I2C_OLED);
+  while (_IFSTOP(I2C_OLED));
 }
 
 void ssd1306_send(uint8_t spec) {
   i2c_send_data(I2C_OLED, spec);
+  while (_IFTRANSMIT(I2C_OLED));
 }
 
 void ssd1306_send_data(uint8_t spec, uint8_t data) {
   i2c_send_data(I2C_OLED, spec);
+  while (_IFTRANSMIT(I2C_OLED));
   i2c_send_data(I2C_OLED, data);
+  while (_IFTRANSMIT(I2C_OLED));
 }
 
 /**
@@ -524,23 +531,19 @@ void ssd1306_refresh(void) {
  * @param y -- from y to dev_height
  * @param c -- white or black
  * @param instantDraw -- if used no RAM data changed, but pixel send direct to device
- * @param op -- and or xor (beware that operation will be with RAM stored)
  */
-void ssd1306_drawPixel(uint8_t x, uint8_t y, Color c, bool instantDraw, BOOL_OPER op) {
+void ssd1306_drawPixel(uint8_t x, uint8_t y, Color c, bool instantDraw) {
   if ( x > WIDTH || y > HEIGHT )
     return;
 
   uint16_t offset = (uint16_t) (x + (y / 8) * WIDTH);
   //draw into memory
-  switch (op) {
-    case or:
-      screenRAM[offset] |= _bit(y%8);
+  switch (c) {
+    case black:
+      screenRAM[offset] |= _bitSet(y%8);
       break;
-    case and:
-      screenRAM[offset] &= (c == black)? _bit(y%8) : _inverse(y%8);
-      break;
-    case xor:
-      screenRAM[offset] ^= (c == black)? _bit(y%8) : _inverse(y%8);
+    case white:
+      screenRAM[offset] &= _bitClear(y%8);
       break;
   }
 
