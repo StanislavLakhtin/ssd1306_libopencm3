@@ -1,20 +1,19 @@
 
-//
-// it was generated automatically from file: ./font.json
-// Note: save it with different name to avoid a lost
+
+//
+
+// it was generated automatically from file: ./font.json
+
+// Note: save it with different name to avoid a lost
 
 
-#ifndef PENTACOM_FONT
-#define PENTACOM_FONT
+
+#ifndef PENTACOM_FONT
+
+#define PENTACOM_FONT
 
 
-typedef struct {
-uint8_t size;
-uint8_t l[];
-} FontChar_t;
-
-
-const FontChar_t spaceChar = {2, {0x00, 0x00}};
+const FontChar_t spaceChar = {2, {0x00, 0x00}};
 
 // original was {"33":[0,2,2,2,2,2,0,2,0,0,0,0,0,0,0,0
 const FontChar_t char_33={2, {0x00,0xbe}}; // !
@@ -259,14 +258,14 @@ const FontChar_t char_112={5, {0x00,0x7c,0x24,0x24,0x18}}; // p
 // original was "113":[0,0,28,18,18,28,16,16,0,0,0,0,0,0,0,0
 const FontChar_t char_113={5, {0x00,0x18,0x24,0x24,0xfc}}; // q
 
-// original was "114":[0,0,10,6,2,2,2,0,0,0,0,0,0,0,0,0
-const FontChar_t char_114={4, {0x00,0x7c,0x08,0x04}}; // r
+// original was "114":[0,0,26,6,2,2,2,0,0,0,0,0,0,0,0,0
+const FontChar_t char_114={5, {0x00,0x7c,0x08,0x04,0x04}}; // r
 
-// original was "115":[0,0,28,2,12,16,14,0,0,0,0,0,0,0,0,0
-const FontChar_t char_115={5, {0x00,0x48,0x54,0x54,0x24}}; // s
+// original was "115":[0,0,28,2,28,32,30,0,0,0,0,0,0,0,0,0
+const FontChar_t char_115={6, {0x00,0x48,0x54,0x54,0x54,0x20}}; // s
 
-// original was "116":[4,14,4,4,4,4,24,0,0,0,0,0,0,0,0,0
-const FontChar_t char_116={5, {0x00,0x02,0x3f,0x42,0x40}}; // t
+// original was "116":[0,4,4,14,4,4,24,0,0,0,0,0,0,0,0,0
+const FontChar_t char_116={5, {0x00,0x08,0x3e,0x48,0x40}}; // t
 
 // original was "117":[0,0,18,18,18,18,28,0,0,0,0,0,0,0,0,0
 const FontChar_t char_117={5, {0x00,0x3c,0x40,0x40,0x7c}}; // u
@@ -274,8 +273,8 @@ const FontChar_t char_117={5, {0x00,0x3c,0x40,0x40,0x7c}}; // u
 // original was "118":[0,0,34,34,20,28,8,0,0,0,0,0,0,0,0,0
 const FontChar_t char_118={6, {0x00,0x0c,0x30,0x60,0x30,0x0c}}; // v
 
-// original was "119":[0,0,130,130,84,124,40,0,0,0,0,0,0,0,0,0
-const FontChar_t char_119={8, {0x00,0x0c,0x30,0x60,0x30,0x60,0x30,0x0c}}; // w
+// original was "119":[0,0,42,42,42,28,20,0,0,0,0,0,0,0,0,0
+const FontChar_t char_119={6, {0x00,0x1c,0x60,0x3c,0x60,0x1c}}; // w
 
 // original was "120":[0,0,34,20,8,20,34,0,0,0,0,0,0,0,0,0
 const FontChar_t char_120={6, {0x00,0x44,0x28,0x10,0x28,0x44}}; // x
@@ -584,10 +583,12 @@ const FontChar_t char_1105={5, {0x00,0x3a,0x54,0x54,0x1a}}; // ё
 const FontChar_t char_8364={6, {0x00,0x28,0x7c,0xaa,0xaa,0x82}}; // €
 
 
-const uint16_t charTableSize = 189;
+
+const uint16_t charTableSize = 189;
 
 
-const uint16_t charTable[] = {
+
+const uint16_t charTable[] = {
 		33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,// !, ", #, $, %, &, ', (, ), *, +, ,, -, ., /, 0, 
 		49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,// 1, 2, 3, 4, 5, 6, 7, 8, 9, :, ;, <, =, >, ?, @, 
 		65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,// A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, 
@@ -602,7 +603,8 @@ const FontChar_t char_8364={6, {0x00,0x28,0x7c,0xaa,0xaa,0x82}}; // €
 		1093,1094,1095,1096,1097,1098,1099,1100,1101,1102,1103,1105,8364};
 
 
-const FontChar_t* chars[charTableSize] = {
+
+const FontChar_t* chars[charTableSize] = {
 		 &char_33, &char_34, &char_35, &char_36, &char_37, &char_38, &char_39, &char_40, &char_41, &char_42, &char_43, &char_44,
 		 &char_45, &char_46, &char_47, &char_48, &char_49, &char_50, &char_51, &char_52, &char_53, &char_54, &char_55, &char_56,
 		 &char_57, &char_58, &char_59, &char_60, &char_61, &char_62, &char_63, &char_64, &char_65, &char_66, &char_67, &char_68,
@@ -621,4 +623,5 @@ const FontChar_t char_8364={6, {0x00,0x28,0x7c,0xaa,0xaa,0x82}}; // €
 		 &char_1097, &char_1098, &char_1099, &char_1100, &char_1101, &char_1102, &char_1103, &char_1105, &char_8364};
 
 #endif //PENTACOM_FONT
-// end of file
+
+// end of file

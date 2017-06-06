@@ -6,6 +6,7 @@
 #include <pentacom_font.h>
 
 #ifndef PENTACOM_FONT
+
 #define PENTACOM_FONT
 
 
@@ -254,14 +255,14 @@ const FontChar_t char_112={5, {0x00,0x7c,0x24,0x24,0x18}}; // p
 // original was "113":[0,0,28,18,18,28,16,16,0,0,0,0,0,0,0,0
 const FontChar_t char_113={5, {0x00,0x18,0x24,0x24,0xfc}}; // q
 
-// original was "114":[0,0,10,6,2,2,2,0,0,0,0,0,0,0,0,0
-const FontChar_t char_114={4, {0x00,0x7c,0x08,0x04}}; // r
+// original was "114":[0,0,26,6,2,2,2,0,0,0,0,0,0,0,0,0
+const FontChar_t char_114={5, {0x00,0x7c,0x08,0x04,0x04}}; // r
 
-// original was "115":[0,0,28,2,12,16,14,0,0,0,0,0,0,0,0,0
-const FontChar_t char_115={5, {0x00,0x48,0x54,0x54,0x24}}; // s
+// original was "115":[0,0,28,2,28,32,30,0,0,0,0,0,0,0,0,0
+const FontChar_t char_115={6, {0x00,0x48,0x54,0x54,0x54,0x20}}; // s
 
-// original was "116":[4,14,4,4,4,4,24,0,0,0,0,0,0,0,0,0
-const FontChar_t char_116={5, {0x00,0x02,0x3f,0x42,0x40}}; // t
+// original was "116":[0,4,4,14,4,4,24,0,0,0,0,0,0,0,0,0
+const FontChar_t char_116={5, {0x00,0x08,0x3e,0x48,0x40}}; // t
 
 // original was "117":[0,0,18,18,18,18,28,0,0,0,0,0,0,0,0,0
 const FontChar_t char_117={5, {0x00,0x3c,0x40,0x40,0x7c}}; // u
@@ -269,8 +270,8 @@ const FontChar_t char_117={5, {0x00,0x3c,0x40,0x40,0x7c}}; // u
 // original was "118":[0,0,34,34,20,28,8,0,0,0,0,0,0,0,0,0
 const FontChar_t char_118={6, {0x00,0x0c,0x30,0x60,0x30,0x0c}}; // v
 
-// original was "119":[0,0,130,130,84,124,40,0,0,0,0,0,0,0,0,0
-const FontChar_t char_119={8, {0x00,0x0c,0x30,0x60,0x30,0x60,0x30,0x0c}}; // w
+// original was "119":[0,0,42,42,42,28,20,0,0,0,0,0,0,0,0,0
+const FontChar_t char_119={6, {0x00,0x1c,0x60,0x3c,0x60,0x1c}}; // w
 
 // original was "120":[0,0,34,20,8,20,34,0,0,0,0,0,0,0,0,0
 const FontChar_t char_120={6, {0x00,0x44,0x28,0x10,0x28,0x44}}; // x

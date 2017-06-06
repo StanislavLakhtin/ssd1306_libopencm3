@@ -149,7 +149,7 @@ public class Main {
             divider = 12;
             i = 0;
 
-            System.out.println("\n\r\n\rconst FontChar_t* chars[charTableSize] = {");
+            System.out.println("\n\r\n\rconst FontChar_t* chars[] = {");
             for (Object val : charSet) {
                 if (i % divider == 0) {
                     System.out.print("\t\t");

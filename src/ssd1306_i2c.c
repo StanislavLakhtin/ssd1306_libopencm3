@@ -583,7 +583,7 @@ void ssd1306_drawWCharStr(uint8_t x, int8_t y, Color color, WrapType wrType, wch
   do {
     symbol = str[curPos];
     const FontChar_t *charCur = getCharacter(symbol);
-    if ((charCur->size+xx) >= (WIDTH-1))
+    if ((charCur->size+xx) >= (WIDTH-1) || (symbol == L'\n'))
       switch (wrType) {
         case nowrap:
           return;
