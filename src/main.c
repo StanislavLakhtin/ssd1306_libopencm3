@@ -135,6 +135,7 @@ int main(void) {
       screenRAM[i] = val;
       val++;
     }
+    val+=3;
     ssd1306_refresh();
   }
 
