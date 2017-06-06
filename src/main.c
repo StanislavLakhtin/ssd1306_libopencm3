@@ -40,17 +40,17 @@ void clock_setup(void) {
   /* Enable GPIOs clock. */
   rcc_periph_clock_enable(RCC_GPIOA);
   rcc_periph_clock_enable(RCC_GPIOB);
-  rcc_periph_clock_enable(RCC_GPIOC);
 
-  /* Enable clocks for USART2. */
-  rcc_periph_clock_enable(RCC_USART2);
+  /* set clock for I2C */
+  rcc_periph_clock_enable(RCC_I2C2);
+
+  /* set clock for AFIO*/
+  rcc_periph_clock_enable(RCC_AFIO);
+
+  AFIO_MAPR |= AFIO_MAPR_SWJ_CFG_FULL_SWJ_NO_JNTRST;
 }
 
 static void i2c_setup(void) {
-  /* set clock for I2C */
-  rcc_periph_clock_enable(RCC_I2C2);
-  rcc_periph_clock_enable(RCC_AFIO);
-
   /* Set alternate functions for the SCL and SDA pins of I2C2. */
   gpio_set_mode(GPIOB, GPIO_MODE_OUTPUT_50_MHZ,
                 GPIO_CNF_OUTPUT_ALTFN_OPENDRAIN,
@@ -82,27 +82,29 @@ static void i2c_setup(void) {
   /*
    * Enable ACK on I2C
    */
-
   i2c_enable_ack(I2C2);
 
   /*
    * This is our slave address - needed only if we want to receive from
    * other masters.
-   *
-   * i2c_set_own_7bit_slave_address(I2C2, 0x32);
    */
+  i2c_set_own_7bit_slave_address(I2C2, 0x32);
 
   /* If everything is configured -> enable the peripheral. */
   i2c_peripheral_enable(I2C2);
 }
 
+volatile int8_t step = 0;
+
 void exti9_5_isr(void) {
+  if (!gpio_get(GPIOA, GPIO8) && gpio_get(GPIOA, GPIO9))
+      step += 1;
+  else
+      step -= 1;
   exti_reset_request(EXTI8); // we should clear flag manually
 }
 
 void board_setup(void) {
-  rcc_periph_clock_enable(RCC_GPIOA);
-
   // Debug setting for rotary encoder EC11 on (PA8, PA9) for make simple command
   gpio_set_mode(GPIOA, GPIO_MODE_INPUT,
                 GPIO_CNF_INPUT_FLOAT,
@@ -129,24 +131,29 @@ int main(void) {
 
   ssd1306_init(I2C2, DEFAULT_7bit_OLED_SLAVE_ADDRESS, 128, 32);
 
-    /*ssd1306_clear(true);
-    for (int8_t y = -10; y<=HEIGHT+10; y++)
-      for (uint8_t x = 0; x <= WIDTH/2; x++)
-        ssd1306_drawWCharStr(x, y, white, nowrap, L"Hello, world!");
-    ssd1306_refresh();*/
+  step = 1;
+  int16_t y = 0;
+
   while (1) {
-    for (int16_t i = 40; i >= -400; i--) {
-      ssd1306_clear();
-      ssd1306_drawWCharStr(0, i, white, wrapDisplay, L"Привет! Это длинный текст c цифрой 01234567890 и " \
+      if (step!=0) {
+        for (int i =0; i<8; i++) {
+          y += step;
+          ssd1306_clear();
+          ssd1306_drawWCharStr(0, y, white, wrapDisplay, L"Привет! Это длинный текст c цифрой 01234567890 и " \
           "cимволами .!№;%:?*()), специально, чтобы создать проблемы для отрисовки.\n"  \
           "There is a lot text with ENGLISH or latin symbols!\n\n"\
           "Однажды в далёкой-далёкой галактике LOREM IPSUM\n\n "
- //         "\"Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?\""
-      );
-      ssd1306_refresh();
-      for (uint32_t loop = 0; loop < 1000000; ++loop) {
-        __asm__("nop");
+              //         "\"Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?\""
+          );
+          ssd1306_refresh();
+          for (uint32_t loop = 0; loop < 1000000; ++loop) {
+            __asm__("nop");
+        }
       }
+      if (step<0)
+        step += 1;
+      else
+        step -= 1;
     }
   }
 
