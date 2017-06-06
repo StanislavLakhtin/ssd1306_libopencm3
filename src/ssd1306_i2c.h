@@ -59,8 +59,8 @@
 
 // Addressing mode
 
-#ifndef DEFAULTBUFFERLENGH
-#define DEFAULTBUFFERLENGH 1024
+#ifndef DEFAULTBUFFERLENGTH
+#define DEFAULTBUFFERLENGTH 1024
 #endif
 
 extern uint32_t I2C_OLED;
@@ -115,6 +115,7 @@ void ssd1306_setColumn(uint8_t);
 void ssd1306_clear(bool screenRAMClear);
 void ssd1306_refresh(void);
 void ssd1306_drawPixel(uint8_t x, uint8_t y, Color c, bool directNoRAM);
+void ssd1306_drawVPattern(uint8_t x, int8_t y, uint8_t pattern);
 
 
 

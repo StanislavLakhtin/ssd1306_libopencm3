@@ -23,8 +23,8 @@ link_directories(
         ${LIBOPENCM3_ROOT}/lib
 )
 
-set(NEWLIBS "-lc -lgcc")
-set(NEWLIB_SPEC "--specs=nano.specs")
+set(NEWLIBS "-lc -lgcc -lm -lrdimon")
+set(NEWLIB_SPEC "--specs=rdimon.specs")
 
 set(STM32F1_ISSUE_602117 "-mfix-cortex-m3-ldrd")
 set(CMAKE_ASM_FLAGS "-D__ASSEMBLY__ -D__NEWLIB__ -mcpu=cortex-m3 -mthumb ${STM32F1_ISSUE_602117}")

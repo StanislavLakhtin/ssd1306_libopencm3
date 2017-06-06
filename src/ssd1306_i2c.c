@@ -37,14 +37,14 @@ uint32_t I2C_OLED = I2C2;
 uint8_t OLED_ADDRESS = DEFAULT_7bit_OLED_SLAVE_ADDRESS;
 uint8_t WIDTH = 128;
 uint8_t HEIGHT = 32;
-uint16_t screenBufferLength = DEFAULTBUFFERLENGH;
+uint16_t screenBufferLength = DEFAULTBUFFERLENGTH;
 MODE AddressingMode = Page;
 
 
 // just noise to check a screen
 // todo make logo or something else
 
-uint8_t screenRAM[DEFAULTBUFFERLENGH] = {
+uint8_t screenRAM[DEFAULTBUFFERLENGTH] = {
     0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x1e,0x00,0x00,0x00,0x00,0x00,0x00,0x06,0x00
     ,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xe0,0x00,0x00,0x00,0x00,0x00,0x00,0x01,0xc0
     ,0x00,0x00,0x00,0x00,0x00,0x00,0x03,0x00,0x00,0xff,0xff,0xff,0xff,0xff,0xc0,0x30
@@ -524,6 +524,8 @@ void ssd1306_setColumn(uint8_t column) {
 
 void ssd1306_clear(bool screenRAMClear) {
   ssd1306_setMemoryAddressingMode(Horizontal);
+  ssd1306_setColumnAddressScope(0,WIDTH-1);
+  ssd1306_setPageAddressScope(0,HEIGHT/8-1);
   ssd1306_send(DATAONLY);
   for (uint16_t i=0; i < screenBufferLength; i++) {
     i2c_send_data(I2C_OLED, 0x00);
@@ -550,36 +552,19 @@ void ssd1306_refresh(void) {
   ssd1306_stop();
 }
 
-/**
- *
- * @param x -- from 0 to dev_width
- * @param y -- from y to dev_height
- * @param c -- white or black
- * @param instantDraw -- if used no RAM data changed, but pixel send direct to device
- */
-void ssd1306_drawPixel(uint8_t x, uint8_t y, Color c, bool instantDraw) {
-  if ( x > WIDTH || y > HEIGHT )
-    return;
-
-  uint16_t offset = (uint16_t) (x + (y / 8) * WIDTH);
-  //draw into memory
-  switch (c) {
-    case black:
-      screenRAM[offset] |= _bitSet(y%8);
-      break;
-    case white:
-      screenRAM[offset] &= _bitClear(y%8);
-      break;
-  }
-
-  if (!instantDraw) {
-    ssd1306_start();
-    ssd1306_setPageStartAddressForPageAddressingMode(Page);
-    ssd1306_setPage(y/8);
-    ssd1306_setColumn(x);
-    ssd1306_send(DATAONLY);
-    i2c_send_data(I2C_OLED, screenRAM[offset]);
-    while (_IF_TxE(I2C_OLED));
-    ssd1306_stop();
+void ssd1306_drawVPattern(uint8_t x, int8_t y, uint8_t pattern) {
+  if ( y > HEIGHT || y < (-7) || x > WIDTH )
+     return;
+  uint8_t yy = y % 8;
+  if (yy == 0) { // aligned
+    screenRAM[y/8*WIDTH + x] = pattern;
+  } else {
+    if (y < 0 ) {
+      screenRAM[x] = pattern << yy;
+    } else if (y > HEIGHT - 8) {
+      screenRAM[y/8*WIDTH +x] = pattern >> yy;
+      screenRAM[(y/8+1)*WIDTH +x] = pattern << yy;
+    } else
+      screenRAM[y/8*WIDTH  +x] = pattern >> yy;
   }
 }
