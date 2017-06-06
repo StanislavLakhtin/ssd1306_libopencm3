@@ -63,12 +63,6 @@
 #define DEFAULTBUFFERLENGTH 1024
 #endif
 
-extern uint32_t I2C_OLED;
-extern uint8_t OLED_ADDRESS;
-extern uint8_t WIDTH;
-extern uint8_t HEIGHT;
-extern uint16_t screenBufferLength;
-
 typedef enum SSD1306_AddressingMode {
   Horizontal  = 0b00,
   Vertical    = 0b01,
@@ -79,6 +73,7 @@ typedef enum SSD1306_AddressingMode {
 extern MODE AddressingMode;
 
 typedef enum SSD1306_COLOR { white = 0, black = 1} Color;
+typedef enum SSD1306_WRAP {nowrap, wrapDisplay, wrapCoord} WrapType;
 
 extern uint8_t screenRAM[];
 
@@ -102,9 +97,10 @@ void ssd1306_setContrast(uint8_t value);
 void ssd1306_setPrecharge(uint8_t value);
 void ssd1306_setDisplayOn(bool resume); // switch ON/OFF MCU of display
 void ssd1306_setInverse(bool inverse);
-void ssd1306_switchOLEDOn(bool goOn, bool enableChargePump); //switch ON/OFF power switch of the OLED panel
+void ssd1306_chargePump(bool chargePump);
+void ssd1306_switchOLEDOn(bool goOn); //switch ON/OFF power switch of the OLED panel
 void ssd1306_setDisplayOffset(uint8_t verticalShift);
-void ssd1306_adjustVcomDeselectLevel(void);
+void ssd1306_adjustVcomDeselectLevel(uint8_t value);
 void ssd1306_setOscillatorFrequency(uint8_t value); // you SHOULD use default value (0x80)
 void ssd1306_setMultiplexRatio(uint8_t ratio);
 void ssd1306_setCOMPinsHardwareConfiguration(uint8_t);
@@ -112,10 +108,11 @@ void ssd1306_setPage(uint8_t);
 void ssd1306_setColumn(uint8_t);
 
 // paint commands
-void ssd1306_clear(bool screenRAMClear);
+void ssd1306_clear(void);
 void ssd1306_refresh(void);
 void ssd1306_drawPixel(uint8_t x, uint8_t y, Color c, bool directNoRAM);
 void ssd1306_drawVPattern(uint8_t x, int8_t y, uint8_t pattern);
+void ssd1306_drawWCharStr(uint8_t x, int8_t y, Color color, WrapType wrType, wchar_t *str);
 
 
 

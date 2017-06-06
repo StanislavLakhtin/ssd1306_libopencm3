@@ -32,6 +32,10 @@
 #endif
 
 #include <string.h>
+#include <stdlib.h>
+#include <pentacom_font.h>
+#include "pentacom_font.h"
+
 
 uint32_t I2C_OLED = I2C2;
 uint8_t OLED_ADDRESS = DEFAULT_7bit_OLED_SLAVE_ADDRESS;
@@ -248,16 +252,17 @@ void ssd1306_init(uint32_t i2c, uint8_t address, uint8_t width, uint8_t height) 
   screenBufferLength = (uint16_t) (HEIGHT / 8 * WIDTH);
 
   // now we can and should send a lot commands
-  ssd1306_switchOLEDOn(false, true); // 0xae
+  ssd1306_switchOLEDOn(false); // 0xae
   ssd1306_setOscillatorFrequency(0x80);  // D5h 0x80
   ssd1306_setMultiplexRatio(HEIGHT-1);
   ssd1306_setInverse(false); // normal display
-  ssd1306_setContrast(0x8F);
-  ssd1306_setPrecharge(0xf1);
+  ssd1306_chargePump(true);
+  ssd1306_setContrast(0x3F);
+  ssd1306_setPrecharge(0x22);
   ssd1306_setCOMPinsHardwareConfiguration(0x02);
-  ssd1306_adjustVcomDeselectLevel();
+  ssd1306_adjustVcomDeselectLevel(0x20);
   ssd1306_setDisplayOn(true);
-  ssd1306_switchOLEDOn(true, true);
+  ssd1306_switchOLEDOn(true);
 
   ssd1306_refresh();
 }
@@ -403,8 +408,15 @@ void ssd1306_setInverse(bool inverse) {
  * tate and high impedance state, respectively. These commands set the display to one of the two states:
  *  AEh : Display OFF
  *  AFh : Display ON
- *
- * Charge Pump Capacitor (8D)
+ */
+
+void ssd1306_switchOLEDOn(bool goOn) {
+  if (goOn) {
+    ssd1306_send_data(COMMAND, 0xAF);
+  } else
+    ssd1306_send_data(COMMAND, 0xAE);
+}
+ /** Charge Pump Capacitor (8D)
  *
  *  The internal regulator circuit in SSD1306 accompanying only 2 external capacitors can generate a
  *  7.5V voltage supply, V CC, from a low voltage supply input, V BAT . The V CC is the voltage supply to the
@@ -417,18 +429,14 @@ void ssd1306_setInverse(bool inverse) {
  * Note: There are two state in the device: NormalMode <-> SleepMode. If device is in SleepMode then the OLED panel power consumption
  * is close to zero.
  */
-void ssd1306_switchOLEDOn(bool goOn, bool enableChargePump) {
-  if (goOn) {
-    ssd1306_send_data(COMMAND, 0x8d);
-    if (enableChargePump)
-      ssd1306_send_data(COMMAND, 0x14);
-    else
-      ssd1306_send_data(COMMAND, 0x10);
-    ssd1306_send_data(COMMAND, 0xAF);
-  } else
-    ssd1306_send_data(COMMAND, 0xAE);
-}
 
+ void ssd1306_chargePump(bool chargeOn) {
+   ssd1306_send_data(COMMAND, 0x8D);
+   if (chargeOn)
+     ssd1306_send_data(COMMAND, 0x14);
+   else
+     ssd1306_send_data(COMMAND, 0x10);
+ }
 /** Set Display Offset (D3h)
  * The command specifies the mapping of the display start line to one of
  * COM0~COM63 (assuming that COM0 is the display start line then the display start line register is equal to 0).
@@ -443,9 +451,9 @@ void ssd1306_setDisplayOffset(uint8_t verticalShift) {
 /** Set VcomH Deselect Level (DBh)
  * This is a special command to adjust of Vcom regulator output.
  */
-void ssd1306_adjustVcomDeselectLevel(void) {
+void ssd1306_adjustVcomDeselectLevel(uint8_t value) {
   ssd1306_send_data(COMMAND, 0xdb);
-  ssd1306_send_data(COMMAND, 0x20);
+  ssd1306_send_data(COMMAND, value);
 }
 
 /** Set Display Clock Divide Ratio/ Oscillator Frequency (D5h)
@@ -522,18 +530,17 @@ void ssd1306_setColumn(uint8_t column) {
  * @param screenRAMClear -- clear or not MCU screenRAM. If not MCU will store buffer and can repaint it.
  */
 
-void ssd1306_clear(bool screenRAMClear) {
-  ssd1306_setMemoryAddressingMode(Horizontal);
+void ssd1306_clear(void) {
+  /*ssd1306_setMemoryAddressingMode(Horizontal);
   ssd1306_setColumnAddressScope(0,WIDTH-1);
   ssd1306_setPageAddressScope(0,HEIGHT/8-1);
-  ssd1306_send(DATAONLY);
+
   for (uint16_t i=0; i < screenBufferLength; i++) {
-    i2c_send_data(I2C_OLED, 0x00);
-    while (_IF_TxE(I2C_OLED));
-  }
-  if (screenRAMClear) {
-    memset(screenRAM, 0x00, screenBufferLength); //TODO check if "memset" is safe in our env
-  }
+    ssd1306_send_data(DATAONLY, 0x00);
+  }*/
+  for (uint16_t i=0; i<screenBufferLength; i++)
+    screenRAM[i] = 0;
+    //memset(screenRAM, 0x00, screenBufferLength); //TODO check if "memset" is safe in our env
 }
 
 /**
@@ -555,16 +562,44 @@ void ssd1306_refresh(void) {
 void ssd1306_drawVPattern(uint8_t x, int8_t y, uint8_t pattern) {
   if ( y > HEIGHT || y < (-7) || x > WIDTH )
      return;
-  uint8_t yy = y % 8;
-  if (yy == 0) { // aligned
-    screenRAM[y/8*WIDTH + x] = pattern;
-  } else {
-    if (y < 0 ) {
-      screenRAM[x] = pattern << yy;
-    } else if (y > HEIGHT - 8) {
-      screenRAM[y/8*WIDTH +x] = pattern >> yy;
-      screenRAM[(y/8+1)*WIDTH +x] = pattern << yy;
+  uint8_t yy = abs(y) % 8;
+  if ( y<0 )
+    screenRAM[ y/8*WIDTH + x ] |= pattern >> yy;
+  else if ( y>23 )
+    screenRAM[ y/8*WIDTH + x] |= pattern << yy;
+  else {
+    if ( yy!=0 ) {
+      screenRAM[y/8*WIDTH + x] |= pattern << yy;
+      screenRAM[(y/8+1)*WIDTH + x] |= pattern >> (8-yy);
     } else
-      screenRAM[y/8*WIDTH  +x] = pattern >> yy;
+      screenRAM[y/8*WIDTH + x] |= pattern;
   }
+}
+
+void ssd1306_drawWCharStr(uint8_t x, int8_t y, Color color, WrapType wrType, wchar_t *str) {
+  wchar_t symbol = 0x00;
+  uint16_t curPos = 0;
+  uint8_t xx = x; int8_t yy = y;
+  do {
+    symbol = str[curPos];
+    const FontChar_t *charCur = getCharacter(symbol);
+    if ((charCur->size+xx) >= (WIDTH-1))
+      switch (wrType) {
+        case nowrap:
+          return;
+        case wrapDisplay:
+          xx = 0;
+          yy += 8;
+          break;
+        case wrapCoord:
+          xx = x;
+          yy += 8;
+      }
+    for (uint8_t i=0; i<charCur->size; i++){
+      uint8_t p = (color==white) ? charCur->l[i]: ~charCur->l[i];
+      ssd1306_drawVPattern(xx,yy, p);
+      xx += 1;
+    }
+    curPos += 1;
+  } while (symbol != 0x00);
 }

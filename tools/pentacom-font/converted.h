@@ -1,15 +1,20 @@
-//
-// Created by sl on 06.06.17.
-//
 
-//#include <ssd1306_i2c.h>
-#include <pentacom_font.h>
-
-#ifndef PENTACOM_FONT
-#define PENTACOM_FONT
+//
+// it was generated automatically from file: ./font.json
+// Note: save it with different name to avoid a lost
 
 
-const FontChar_t spaceChar = {2, {0x00, 0x00}};
+#ifndef PENTACOM_FONT
+#define PENTACOM_FONT
+
+
+typedef struct {
+uint8_t size;
+uint8_t l[];
+} FontChar_t;
+
+
+const FontChar_t spaceChar = {2, {0x00, 0x00}};
 
 // original was {"33":[0,2,2,2,2,2,0,2,0,0,0,0,0,0,0,0
 const FontChar_t char_33={2, {0x00,0xbe}}; // !
@@ -189,7 +194,7 @@ const FontChar_t char_90={6, {0x00,0xc2,0xa2,0x92,0x8a,0x86}}; // Z
 const FontChar_t char_91={3, {0x00,0xfe,0x82}}; // [
 
 // original was "92":[0,2,2,4,4,8,8,0,0,0,0,0,0,0,0,0
-const FontChar_t char_92={4, {0x00,0x06,0x18,0x60}}; //
+const FontChar_t char_92={4, {0x00,0x06,0x18,0x60}}; // \
 
 // original was "93":[0,6,4,4,4,4,4,6,0,0,0,0,0,0,0,0
 const FontChar_t char_93={3, {0x00,0x82,0xfe}}; // ]
@@ -579,119 +584,41 @@ const FontChar_t char_1105={5, {0x00,0x3a,0x54,0x54,0x1a}}; // ё
 const FontChar_t char_8364={6, {0x00,0x28,0x7c,0xaa,0xaa,0x82}}; // €
 
 
-
-const uint16_t charTableSize = 189;
-
+const uint16_t charTableSize = 189;
 
 
-const uint16_t charTable[] = {
-    33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,// !, ", #, $, %, &, ', (, ), *, +, ,, -, ., /, 0,
-    49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,// 1, 2, 3, 4, 5, 6, 7, 8, 9, :, ;, <, =, >, ?, @,
-    65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,// A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P,
-    81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,// Q, R, S, T, U, V, W, X, Y, Z, [, \, ], ^, _, `,
-    97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,// a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p,
-    113,114,115,116,117,118,119,120,121,122,123,124,125,126,161,162,// q, r, s, t, u, v, w, x, y, z, {, |, }, ~, ¡, ¢,
-    163,164,165,166,167,168,169,171,172,174,175,176,177,178,179,180,// £, ¤, ¥, ¦, §, ¨, ©, «, ¬, ®, ¯, °, ±, ², ³, ´,
-    181,182,183,185,186,187,188,189,190,191,1025,1040,1041,1042,1043,1044,// µ, ¶, ·, ¹, º, », ¼, ½, ¾, ¿, Ё, А, Б, В, Г, Д,
-    1045,1046,1047,1048,1049,1050,1051,1052,1053,1054,1055,1056,1057,1058,1059,1060,// Е, Ж, З, И, Й, К, Л, М, Н, О, П, Р, С, Т, У, Ф,
-    1061,1062,1063,1064,1065,1066,1067,1068,1069,1070,1071,1072,1073,1074,1075,1076,// Х, Ц, Ч, Ш, Щ, Ъ, Ы, Ь, Э, Ю, Я, а, б, в, г, д,
-    1077,1078,1079,1080,1081,1082,1083,1084,1085,1086,1087,1088,1089,1090,1091,1092,// е, ж, з, и, й, к, л, м, н, о, п, р, с, т, у, ф,
-    1093,1094,1095,1096,1097,1098,1099,1100,1101,1102,1103,1105,8364};
+const uint16_t charTable[] = {
+		33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,// !, ", #, $, %, &, ', (, ), *, +, ,, -, ., /, 0, 
+		49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,// 1, 2, 3, 4, 5, 6, 7, 8, 9, :, ;, <, =, >, ?, @, 
+		65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,// A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, 
+		81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,// Q, R, S, T, U, V, W, X, Y, Z, [, \, ], ^, _, `, 
+		97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,// a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, 
+		113,114,115,116,117,118,119,120,121,122,123,124,125,126,161,162,// q, r, s, t, u, v, w, x, y, z, {, |, }, ~, ¡, ¢, 
+		163,164,165,166,167,168,169,171,172,174,175,176,177,178,179,180,// £, ¤, ¥, ¦, §, ¨, ©, «, ¬, ®, ¯, °, ±, ², ³, ´, 
+		181,182,183,185,186,187,188,189,190,191,1025,1040,1041,1042,1043,1044,// µ, ¶, ·, ¹, º, », ¼, ½, ¾, ¿, Ё, А, Б, В, Г, Д, 
+		1045,1046,1047,1048,1049,1050,1051,1052,1053,1054,1055,1056,1057,1058,1059,1060,// Е, Ж, З, И, Й, К, Л, М, Н, О, П, Р, С, Т, У, Ф, 
+		1061,1062,1063,1064,1065,1066,1067,1068,1069,1070,1071,1072,1073,1074,1075,1076,// Х, Ц, Ч, Ш, Щ, Ъ, Ы, Ь, Э, Ю, Я, а, б, в, г, д, 
+		1077,1078,1079,1080,1081,1082,1083,1084,1085,1086,1087,1088,1089,1090,1091,1092,// е, ж, з, и, й, к, л, м, н, о, п, р, с, т, у, ф, 
+		1093,1094,1095,1096,1097,1098,1099,1100,1101,1102,1103,1105,8364};
 
 
-
-const FontChar_t* chars[] = {
-    &char_33, &char_34, &char_35, &char_36, &char_37, &char_38, &char_39, &char_40, &char_41, &char_42, &char_43, &char_44,
-    &char_45, &char_46, &char_47, &char_48, &char_49, &char_50, &char_51, &char_52, &char_53, &char_54, &char_55, &char_56,
-    &char_57, &char_58, &char_59, &char_60, &char_61, &char_62, &char_63, &char_64, &char_65, &char_66, &char_67, &char_68,
-    &char_69, &char_70, &char_71, &char_72, &char_73, &char_74, &char_75, &char_76, &char_77, &char_78, &char_79, &char_80,
-    &char_81, &char_82, &char_83, &char_84, &char_85, &char_86, &char_87, &char_88, &char_89, &char_90, &char_91, &char_92,
-    &char_93, &char_94, &char_95, &char_96, &char_97, &char_98, &char_99, &char_100, &char_101, &char_102, &char_103, &char_104,
-    &char_105, &char_106, &char_107, &char_108, &char_109, &char_110, &char_111, &char_112, &char_113, &char_114, &char_115, &char_116,
-    &char_117, &char_118, &char_119, &char_120, &char_121, &char_122, &char_123, &char_124, &char_125, &char_126, &char_161, &char_162,
-    &char_163, &char_164, &char_165, &char_166, &char_167, &char_168, &char_169, &char_171, &char_172, &char_174, &char_175, &char_176,
-    &char_177, &char_178, &char_179, &char_180, &char_181, &char_182, &char_183, &char_185, &char_186, &char_187, &char_188, &char_189,
-    &char_190, &char_191, &char_1025, &char_1040, &char_1041, &char_1042, &char_1043, &char_1044, &char_1045, &char_1046, &char_1047, &char_1048,
-    &char_1049, &char_1050, &char_1051, &char_1052, &char_1053, &char_1054, &char_1055, &char_1056, &char_1057, &char_1058, &char_1059, &char_1060,
-    &char_1061, &char_1062, &char_1063, &char_1064, &char_1065, &char_1066, &char_1067, &char_1068, &char_1069, &char_1070, &char_1071, &char_1072,
-    &char_1073, &char_1074, &char_1075, &char_1076, &char_1077, &char_1078, &char_1079, &char_1080, &char_1081, &char_1082, &char_1083, &char_1084,
-    &char_1085, &char_1086, &char_1087, &char_1088, &char_1089, &char_1090, &char_1091, &char_1092, &char_1093, &char_1094, &char_1095, &char_1096,
-    &char_1097, &char_1098, &char_1099, &char_1100, &char_1101, &char_1102, &char_1103, &char_1105, &char_8364};
+const FontChar_t* chars[charTableSize] = {
+		 &char_33, &char_34, &char_35, &char_36, &char_37, &char_38, &char_39, &char_40, &char_41, &char_42, &char_43, &char_44,
+		 &char_45, &char_46, &char_47, &char_48, &char_49, &char_50, &char_51, &char_52, &char_53, &char_54, &char_55, &char_56,
+		 &char_57, &char_58, &char_59, &char_60, &char_61, &char_62, &char_63, &char_64, &char_65, &char_66, &char_67, &char_68,
+		 &char_69, &char_70, &char_71, &char_72, &char_73, &char_74, &char_75, &char_76, &char_77, &char_78, &char_79, &char_80,
+		 &char_81, &char_82, &char_83, &char_84, &char_85, &char_86, &char_87, &char_88, &char_89, &char_90, &char_91, &char_92,
+		 &char_93, &char_94, &char_95, &char_96, &char_97, &char_98, &char_99, &char_100, &char_101, &char_102, &char_103, &char_104,
+		 &char_105, &char_106, &char_107, &char_108, &char_109, &char_110, &char_111, &char_112, &char_113, &char_114, &char_115, &char_116,
+		 &char_117, &char_118, &char_119, &char_120, &char_121, &char_122, &char_123, &char_124, &char_125, &char_126, &char_161, &char_162,
+		 &char_163, &char_164, &char_165, &char_166, &char_167, &char_168, &char_169, &char_171, &char_172, &char_174, &char_175, &char_176,
+		 &char_177, &char_178, &char_179, &char_180, &char_181, &char_182, &char_183, &char_185, &char_186, &char_187, &char_188, &char_189,
+		 &char_190, &char_191, &char_1025, &char_1040, &char_1041, &char_1042, &char_1043, &char_1044, &char_1045, &char_1046, &char_1047, &char_1048,
+		 &char_1049, &char_1050, &char_1051, &char_1052, &char_1053, &char_1054, &char_1055, &char_1056, &char_1057, &char_1058, &char_1059, &char_1060,
+		 &char_1061, &char_1062, &char_1063, &char_1064, &char_1065, &char_1066, &char_1067, &char_1068, &char_1069, &char_1070, &char_1071, &char_1072,
+		 &char_1073, &char_1074, &char_1075, &char_1076, &char_1077, &char_1078, &char_1079, &char_1080, &char_1081, &char_1082, &char_1083, &char_1084,
+		 &char_1085, &char_1086, &char_1087, &char_1088, &char_1089, &char_1090, &char_1091, &char_1092, &char_1093, &char_1094, &char_1095, &char_1096,
+		 &char_1097, &char_1098, &char_1099, &char_1100, &char_1101, &char_1102, &char_1103, &char_1105, &char_8364};
 
 #endif //PENTACOM_FONT
-
-const FontChar_t* getCharacter(uint16_t s) {
-  int i = 0;
-  for (; i < charTableSize; ++i) {
-    if (charTable[i] == s)
-      return chars[i];
-  }
-  return &spaceChar;
-}
-
-uint16_t FontChar_getPixelTextLength(wchar_t *text) {
-  uint16_t length = 0;
-  uint16_t index = 0;
-  uint16_t symbol;
-  do {
-    symbol = text[index];
-    const FontChar_t *charCur = getCharacter(symbol);
-    length += charCur->size;
-    index += 1;
-  } while (symbol != 0x00);
-  return length;
-}
-
-void FontChar_drawInt(uint8_t x, uint8_t y, uint8_t color, int num, int pos) {
-  //wchar_t buffer[30];
-  //FontChar_drawText(x,y,color,buffer);
-}
-
-/**
- *
- * @param x -- upper left corner of drawing text
- * @param y -- upper left corner of drawing text
- * @param color -- black or white
- * @param text -- zero finished unicode
- */
-void FontChar_drawText(uint8_t x, uint8_t y, uint8_t color, wchar_t *text) {
-  /*gpio_clear(GPIOA, GPIO_ALL);
-  //использовать x и y для настройки на чип, страницу и адрес
-  int charPos = 0;
-  uint16_t symbol = 0x00;
-  do {
-    symbol = text[charPos];
-    uint8_t curCS = ks0108_chipByAddress(x);
-    FontChar_t *charCur = getCharacter(symbol);
-    uint8_t cBites = (uint8_t) (y % 8);
-
-    int i = 0;
-    for (; i < charCur->size; i++) {
-      if (x > 127)
-        break;
-      uint8_t calcSymLine = ks0108_readMemoryAt(x, y);
-      ks0108_GoTo(x, y);
-      if (color)
-        calcSymLine |= charCur->l[i] << cBites;
-      else
-        calcSymLine &= ~(charCur->l[i] << cBites);
-      ks0108_sendCmdOrData(curCS, 1, 0, calcSymLine);
-      if (y < 57 && cBites>0) {
-        calcSymLine = ks0108_readMemoryAt(x, y + 8);
-        ks0108_GoTo(x, y + 8);
-        if (color)
-          calcSymLine |= charCur->l[i] >> (8 - cBites);
-        else
-          calcSymLine &= ~(charCur->l[i] >> (8 - cBites));
-        ks0108_sendCmdOrData(curCS, 1, 0, calcSymLine);
-      }
-      x += 1;
-      uint8_t tmpCS = ks0108_chipByAddress(x);
-      if (tmpCS != curCS) {
-        curCS = tmpCS;
-      }
-    }
-
-    charPos += 1;
-  } while (symbol != 0x00);*/
-}
+// end of file

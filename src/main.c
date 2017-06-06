@@ -129,14 +129,20 @@ int main(void) {
 
   ssd1306_init(I2C2, DEFAULT_7bit_OLED_SLAVE_ADDRESS, 128, 32);
 
-  uint8_t val = 0;
+    /*ssd1306_clear(true);
+    for (int8_t y = -10; y<=HEIGHT+10; y++)
+      for (uint8_t x = 0; x <= WIDTH/2; x++)
+        ssd1306_drawWCharStr(x, y, white, nowrap, L"Hello, world!");
+    ssd1306_refresh();*/
   while (1) {
-    for (int i=0;i<screenBufferLength; i++){
-      screenRAM[i] = val;
-      val++;
+    for (int16_t i = -10; i <= 40; i++) {
+      ssd1306_clear();
+      ssd1306_drawWCharStr(0, i, white, wrapDisplay, L"Привет! Это длинный текст c цифрой 01234567890 и символами .!№;%:?*()), специально, чтобы создать проблемы для отрисовки.");
+      ssd1306_refresh();
+      for (uint32_t loop = 0; loop < 1000000; ++loop) {
+        __asm__("nop");
+      }
     }
-    val+=3;
-    ssd1306_refresh();
   }
 
   /* We will never get here */
