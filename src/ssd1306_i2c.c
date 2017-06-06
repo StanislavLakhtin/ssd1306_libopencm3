@@ -275,7 +275,7 @@ void ssd1306_init(uint32_t i2c, uint8_t address, uint8_t width, uint8_t height) 
 void ssd1306_setMemoryAddressingMode(MODE mode) {
   // send initial command to the device
   ssd1306_send_data(COMMAND, 0x20);
-  ssd1306_send_data(COMMAND, 0b00000011 & mode);
+  ssd1306_send_data(COMMAND, mode);
 }
 
 /** Set Column Address [Space] (21h)
@@ -539,6 +539,8 @@ void ssd1306_clear(bool screenRAMClear) {
  */
 void ssd1306_refresh(void) {
   ssd1306_setMemoryAddressingMode(Horizontal);
+  ssd1306_setColumnAddressScope(0,WIDTH-1);
+  ssd1306_setPageAddressScope(0,HEIGHT/8-1);
   ssd1306_start();
   ssd1306_send(DATAONLY);
   for (uint16_t i=0; i < screenBufferLength; i++) {
